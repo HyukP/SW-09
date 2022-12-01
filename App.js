@@ -8,6 +8,7 @@ import Certify from './components/signUp/Certify';
 import Information from './components/signUp/Information';
 import EndRegister from './components/signUp/EndRegister';
 import Login from './components/signIn/Login';
+import HomeScreen from './components/signIn/Home/HomeScreen';
 const stack = createStackNavigator();
 
 class App extends Component{
@@ -34,6 +35,7 @@ class App extends Component{
         <stack.Screen name='Information' component={Information}/>
         <stack.Screen name='EndRegister' component={EndRegister}/>
         <stack.Screen name='Login' component={Login}/>
+        <stack.Screen name='HomeScreen' component={HomeScreen}/>
       </stack.Navigator>
     </NavigationContainer>
   );
