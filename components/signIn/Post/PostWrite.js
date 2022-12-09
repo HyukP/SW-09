@@ -33,8 +33,8 @@ const PostWrite = ({navigation, route}) => {
         axios.get('http://10.0.2.2:8090/post/write',{
             method : 'POST',
             params : {
-                pickUpTime : date,
-                pickupLocation : place + detailPlace,
+                pickUpTime : date.getHours() + "시" +" "+date.getMinutes() + "분",
+                pickupLocation : place +" "+detailPlace,
                 priFoodName : foodName,
                 priFoodPrice : foodPrice,
                 priFooodLocation : latitude + ',' + longitude,

@@ -10,7 +10,40 @@ import moment from 'moment';
 import 'moment/locale/ko';
 
 const PostList = ({ navigation }) => {
-
+  var [data, setData] = useState([]);
+  useEffect(() => {
+    axios.get('http://10.0.2.2:8090/post/getList').then(response => {
+      var count = parseInt(response.data.numberOfElements);
+        var newData = [];
+        count = count - 1;
+        for (count; count >= 0; count--) {
+          console.log(response.data.content[count].food)
+          newData.push({
+            pickupLocation: response.data.content[count].pickupLocation,
+          })
+        }
+        console.log(newData);
+        setData(newData)
+    })
+}, []);
+const Item = ({ item, onPress, style }) => (
+  <TouchableOpacity onPress={onPress} style={[styles.item, style]}>
+    <Card style={styles.cards}>
+      <ScrollView>
+      <View style={{ flexDirection: 'row' }}>
+        <Text style={styles.content}>{item.pickupLocation}</Text>
+      </View>
+      </ScrollView>
+    </Card>
+  </TouchableOpacity>
+);
+const renderItem = ({ item }) => {
+  return (
+    <Item
+      item={item}
+    />
+  )
+  }
   return (
     <View style={{ flex: 1, backgroundColor: '#89D69D' }}>
       <View style={styles.PageStyle}>
@@ -21,7 +54,9 @@ const PostList = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={{ flexgrow: 1 }}>
-          <FlatList
+        <FlatList
+            data={data}
+            renderItem={(item)=> renderItem(item)}
             contentContainerStyle={{ flexGrow: 1 }}>
           </FlatList>
         </View>
