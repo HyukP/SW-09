@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import 'react-navigation';
 import Home from './Home';
+import PostPage from '../Post/PostPage';
 
 // 전체 홈 화면 바텀 탭 Stack
 const Tab = createBottomTabNavigator();
@@ -21,6 +22,9 @@ const HomeScreen = ({ navigation , route}) => {
                 activeColor="#89D69D"
                 labeled = {true}
                 >
+                <Tab.Screen name='게시글' component={PostPage}options={{
+                    unmountOnBlur: Platform.OS === 'ios' ? false : true,
+                }} />
                 <Tab.Screen name="홈" component={Home} options={{
                     unmountOnBlur: Platform.OS === 'ios' ? false : true,
                 }} />
