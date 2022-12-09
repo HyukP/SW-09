@@ -41,7 +41,7 @@ public class Food {
   private String foodname;
 
   @Column(nullable = false)
-  private long foodprice;
+  private String foodprice;
 
   @Column(nullable = false, length = 200)
   private String foodlocation;

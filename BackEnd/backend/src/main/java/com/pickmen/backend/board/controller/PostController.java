@@ -1,6 +1,6 @@
 package com.pickmen.backend.board.controller;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -22,7 +22,6 @@ import com.pickmen.backend.Type.PostStatusType;
 import com.pickmen.backend.Type.StatusType;
 import com.pickmen.backend.board.model.Food;
 import com.pickmen.backend.board.model.Post;
-import com.pickmen.backend.board.model.Reply;
 import com.pickmen.backend.board.repository.FoodRepository;
 import com.pickmen.backend.board.repository.PostRepository;
 import com.pickmen.backend.board.service.PostService;
@@ -87,28 +86,31 @@ public class PostController {
   
   @Transactional
   @PostMapping("/post/write")
-  public @ResponseBody ResponseDto<Post> postReply(@AuthenticationPrincipal PrincipalDetail principalDetail, @RequestParam Map<String,String> map){
-
+  public @ResponseBody ResponseDto<Post> postReply(@AuthenticationPrincipal PrincipalDetail principalDetail, Post post,
+   @RequestParam("priFoodName") String prifoodname,@RequestParam("subFoodName") String subfoodname,
+    @RequestParam("priFoodPrice") String prifoodprice, @RequestParam("subFoodPrice") String subfoodprice, 
+    @RequestParam("priFooodLocation") String prifoodlocation, @RequestParam("subFoodLocation") String subfoodlocation){
       try {
-          // Post newPost=new Post().builder().authorId(post.getAuthorId()).deliveryId(post.getDeliveryId())
-          // .pickUpTime(post.getPickUpTime()).pickupLocation(post.getPickupLocation()).prifId(post.getPrifId()).subfId(post.getSubfId()).build();
+        Post newPost=null;
+          if(principalDetail.getUser().getStatus()==StatusType.NORMAL){
+            Food priFood=new Food().builder().foodname(prifoodname).foodprice(prifoodprice)
+            .foodlocation(prifoodlocation).build();
+   
+
+            Food subFood=new Food().builder().foodname(subfoodname).foodprice(subfoodprice)
+            .foodlocation(subfoodlocation).build();
           
-              Post newPost=new Post().builder().pickupLocation(map.get("pickupLocation")).build();
-              // Food priFood=new Food().builder().foodname(map.get("priFoodName")).foodprice(Long.parseLong(map.get("priFoodPrice")))
-              // .foodlocation(map.get("priFoodLocation")).build();
+            foodRepository.save(priFood);
+            foodRepository.save(subFood);
+            newPost=new Post().builder().authorId(principalDetail.getUser())
+           .pickUpTime(post.getPickUpTime()).pickupLocation(post.getPickupLocation()).postType(PostStatusType.WAITING).build();
+            List<Food> foodList=newPost.getFood();
+            foodList.add(priFood);
+            foodList.add(subFood);
 
+            principalDetail.getUser().setStatus(StatusType.WRITE);
+          }
 
-              // Food subFood=new Food().builder().foodname(map.get("subFoodName")).foodprice(Long.parseLong(map.get("subFoodPrice")))
-              // .foodlocation(map.get("subFoodLocation")).build();
-
-              // newPost.addFood(priFood);
-              // newPost.addFood(subFood);
-
-              // foodRepository.save(priFood);
-              // foodRepository.save(subFood);
-                 newPost.setPostType(PostStatusType.UNACTIVE);
-
-              principalDetail.getUser().setStatus(StatusType.WRITE);
         
           
           return new ResponseDto<>(HttpStatus.OK.value(),postRepository.save(newPost));
