@@ -136,7 +136,10 @@ public class PostController {
             foodList.add(priFood);
             foodList.add(subFood);
 
-            principalDetail.getUser().setStatus(StatusType.WRITE);
+            
+            User author=principalDetail.getUser();
+            newPost.setAuthorNickName(author.getNickname());
+            author.setStatus(StatusType.WRITE);
           }
 
         
