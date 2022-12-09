@@ -1,5 +1,8 @@
 package com.pickmen.backend.user.controller;
 import java.util.*;
+
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +24,9 @@ import com.pickmen.backend.Type.StatusType;
 import com.pickmen.backend.config.auth.PrincipalDetail;
 import com.pickmen.backend.config.auth.PrincipalDetailsService;
 import com.pickmen.backend.dto.ResponseDto;
+import com.pickmen.backend.user.model.Review;
 import com.pickmen.backend.user.model.User;
+import com.pickmen.backend.user.repository.ReviewRepository;
 import com.pickmen.backend.user.repository.UserRepository;
 import com.pickmen.backend.user.service.UserService;
 
@@ -38,6 +43,8 @@ public class UserApiController {
   @Autowired private PrincipalDetailsService principalDetailsService;
 
   @Autowired private UserRepository userRepository;
+
+  @Autowired private ReviewRepository reviewRepository;
 
   @PostMapping("/user/login")
   public @ResponseBody ResponseDto<User> login(@RequestParam("username") String username, @RequestParam("password") String password)
@@ -86,14 +93,15 @@ public class UserApiController {
     }
   }
 
-  @GetMapping("/user/get/{userId}")
-  public @ResponseBody ResponseDto<User> getUser(@PathVariable Long userId){
-    User user=userRepository.getById(userId);
+  @GetMapping("/user/getUser")
+  public @ResponseBody ResponseDto<String> getUser(@AuthenticationPrincipal PrincipalDetail principalDetail){
+    User user=userRepository.getById(principalDetail.getUser().getId());
     if(user==null){
       return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), null);
     }
     else{
-      return new ResponseDto<>(HttpStatus.OK.value(), user);
+      System.out.println(principalDetail.getUser());
+      return new ResponseDto<>(HttpStatus.OK.value(), user.getStatus().toString());
     }
 
   }
@@ -116,21 +124,7 @@ public class UserApiController {
       e.printStackTrace();
       return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), null);
     }
-  }
-
-
-  @PostMapping("/user/update")
-  public @ResponseBody ResponseDto<User> user( User user, @AuthenticationPrincipal PrincipalDetail principalDetail) {
-    try {
-      user.setId(principalDetail.getUserId());
-      User savedUser = userService.updateUser(user);
-      return new ResponseDto<>(HttpStatus.OK.value(), savedUser);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), null);
-    }
-  }
-  
+  }  
 }
 
 

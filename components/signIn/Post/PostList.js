@@ -23,13 +23,14 @@ const PostList = ({ navigation }) => {
           } else if (response.data.content[count].postType=="DELIVERY"){
             type = "배달 진행중"
           }
-          newData.push({
-            nickname: response.data.content[count].authorNickName,
-            pickupLocation: response.data.content[count].pickupLocation,
-            pickUpTime : response.data.content[count].pickUpTime,
-            id : response.data.content[count].id,
-            postType : type,
-          })
+          if(response.data.content[count].postType!="TERMINATE")
+            newData.push({
+              nickname: response.data.content[count].authorNickName,
+              pickupLocation: response.data.content[count].pickupLocation,
+              pickUpTime : response.data.content[count].pickUpTime,
+              id : response.data.content[count].id,
+              postType : type,
+            })
         }
         setData(newData)
     })

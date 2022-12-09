@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { TouchableOpacity } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
 import 'react-navigation';
 import axios from 'axios';
 
 // 로그인 페이지
-const Login = ({ navigation }) =>{
+const Login = ({ navigation, route}) =>{
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const LoginAccess = async (email, password) => {
@@ -18,7 +19,13 @@ const Login = ({ navigation }) =>{
         }).then(response => {
             if (response.data.status == 200) {
                 AsyncStorage.setItem('username',response.data.data.nickname);
-                navigation.navigate('HomeScreen', { item_nickname: response.data.data.nickname });
+                AsyncStorage.setItem('userid',String(response.data.data.id));
+                navigation.dispatch(CommonActions.reset({
+                    index : 0,
+                    routes : [{name : 'HomeScreen', params : {
+                        user_id : response.data.data.id,
+                    }}],
+                }))
             } else {
                 alert('아이디 또는 비밀번호가 틀렸습니다.');
                 navigation.navigate('Login');

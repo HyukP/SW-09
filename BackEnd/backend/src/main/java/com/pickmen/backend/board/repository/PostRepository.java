@@ -11,15 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
   
-    // public Page<Post> findByTitleContaining(String title,Pageable pageable);
+    public Page<Post> findByAuthorId(Long user_id,Pageable pageable);
     // public Page<Post> findByTitleOrContentContaining(String title,String content,Pageable pageable);
     // public Page<Post> findByContentContaining(String content,Pageable pageable);
-
-
-
-
-
-
-
-    
+   
 }

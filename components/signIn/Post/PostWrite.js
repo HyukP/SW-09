@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { View, TouchableOpacity, FlatList, Text, StyleSheet, Image, RefreshControl, ScrollView, TextInput, Button} from 'react-native';
+import { View, TouchableOpacity, FlatList, Text, StyleSheet, Image, RefreshControl, ScrollView, Alert, TextInput, Button} from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import filter from 'lodash.filter';
 import FastImage from 'react-native-fast-image';
@@ -28,7 +28,12 @@ const PostWrite = ({navigation, route}) => {
     const [subFoodPrice, setSubFoodPrice] = useState(null);
     const [date, setDate] = useState(new Date(null));
     const [open, setOpen] = useState(false);
-
+    const [id, setId]= useState('');
+    const [userType, setUserType] = useState('');
+    const getUserName = async () => {
+        var username = await AsyncStorage.getItem('userid');
+        setId(username);
+      }
     const writePost = () => {
         axios.get('http://10.0.2.2:8090/post/write',{
             method : 'POST',
@@ -58,6 +63,11 @@ const PostWrite = ({navigation, route}) => {
         })
     }
     useEffect(() => {
+        getUserName();
+        console.log(id);
+        axios.get('http://10.0.2.2:8090/user/getUser').then(response=>{
+            setUserType(response.data.data);
+        })
         if(route.params) {
             setLatitude(route.params.latitude);
             setLongitudes(route.params.longitude);
@@ -72,7 +82,8 @@ const PostWrite = ({navigation, route}) => {
             <Text style={styles.Text}>게시글 쓰기</Text>
             <View style={{ flexDirection: 'row', marginTop: 10 }}>
                 <TouchableOpacity 
-                    onPress={()=>{setDate(new Date(null));setLocation(null);styles.MapView.display="none";navigation.dispatch(CommonActions.reset({
+                    onPress={()=>{
+                        setDate(new Date(null));setLocation(null);styles.MapView.display="none";navigation.dispatch(CommonActions.reset({
                         index : 0,
                         routes : [{name : 'Post'}]
                     }))}}
@@ -80,7 +91,11 @@ const PostWrite = ({navigation, route}) => {
                     <Text style={styles.ExitText}>X</Text>
                 </TouchableOpacity>
                 <Text style={styles.PostText}>글 쓰기</Text>
-                <TouchableOpacity style={styles.Button} onPress={()=>writePost()}>
+                <TouchableOpacity style={styles.Button} onPress={()=>{
+                    if(userType=="WRITE"||userType=="DELIVERY"){
+                        alert("배달을 수행중이거나 요청 대기중에는 작성하실 수 없습니다!");
+                    }else
+                        writePost()}}>
                     <Text style={styles.ButtonText}>작성</Text>
                 </TouchableOpacity>
             </View>

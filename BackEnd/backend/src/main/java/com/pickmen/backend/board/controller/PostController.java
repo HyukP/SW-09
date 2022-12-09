@@ -28,7 +28,9 @@ import com.pickmen.backend.board.repository.PostRepository;
 import com.pickmen.backend.board.service.PostService;
 import com.pickmen.backend.config.auth.PrincipalDetail;
 import com.pickmen.backend.dto.ResponseDto;
+import com.pickmen.backend.user.model.Review;
 import com.pickmen.backend.user.model.User;
+import com.pickmen.backend.user.repository.ReviewRepository;
 import com.pickmen.backend.user.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,8 @@ import lombok.extern.slf4j.Slf4j;
 public class PostController {
 
   @Autowired private PostService postService;
+
+  @Autowired private ReviewRepository reviewRepository;
 
   @Autowired private UserRepository userRepository;
 
@@ -57,8 +61,26 @@ public class PostController {
       return null;
     }
   }
-
-
+  @Transactional
+  @GetMapping("post/getDeliveryId")
+  public @ResponseBody ResponseDto<User> deliveryId(@RequestParam("postId") String postId){
+    try {
+      System.out.println(postRepository.findById(Long.parseLong(postId)).get().getDeliveryId().getId());
+      return new ResponseDto<User>(HttpStatus.OK.value(),postRepository.findById(Long.parseLong(postId)).get().getDeliveryId());
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new ResponseDto<User>(HttpStatus.INTERNAL_SERVER_ERROR.value(),null);
+    }
+  }
+  @GetMapping("post/getByUser")
+  public @ResponseBody Page<Post> myPost(@RequestParam("user_id") String user_id ,@PageableDefault(size = 5, sort="createDate",direction = Sort.Direction.DESC)Pageable pageable){
+    try {
+      return postRepository.findByAuthorId(Long.parseLong(user_id), pageable);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
   @GetMapping("post/get/{post_id}")
   public @ResponseBody ResponseDto<Post> postList(@PathVariable Long post_id){
     try {
@@ -89,9 +111,24 @@ public class PostController {
       return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),null);
   }
 }
-
+@Transactional
+@GetMapping("post/addReview")
+public @ResponseBody ResponseDto<User> userReview(@AuthenticationPrincipal PrincipalDetail principalDetail ,@RequestParam("deliveryId") String deliveryId, @RequestParam("content") String content, @RequestParam("rating") int rating) {
+  try {
+    long delivery=Long.parseLong(deliveryId);
+    User deliveryMan=userRepository.getById(delivery);
+    Review newReview=new Review().builder().content(content).rating(rating).targetId(deliveryMan).build();
+    principalDetail.getUser().addReview(newReview);
+    reviewRepository.save(newReview);
+    userRepository.save(deliveryMan);
+    return new ResponseDto<>(HttpStatus.OK.value(), null);
+  } catch (Exception e) {
+    e.printStackTrace();
+    return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), null);
+  }
+}
   @Transactional
-  @PostMapping("post/delete")
+  @GetMapping("post/delete")
   public @ResponseBody ResponseDto<Post> postDelete(@RequestParam(required = true, name = "postId" ) String post_id, @AuthenticationPrincipal PrincipalDetail principalDetail){
     try{
       long postId=Long.parseLong(post_id);
@@ -102,11 +139,9 @@ public class PostController {
       userRepository.save(author);
       postRepository.save(post);
     
-      if(post.getAuthorId()!=null){
-      User delivery=userRepository.findById(post.getAuthorId().getId()).get();
+      User delivery=userRepository.findById(post.getDeliveryId().getId()).get();
       delivery.setStatus(StatusType.NORMAL);
       userRepository.save(delivery);
-      }
 
     //Post post=postService.getPost(post_id);
     //if(post.getAuthorId().getId()==principalDetail.getUserId()){
@@ -161,7 +196,7 @@ public class PostController {
 
         
           postRepository.save(newPost);
-          return new ResponseDto<>(HttpStatus.OK.value(),principalDetail.getUser().getStatus().toString());
+          return new ResponseDto<>(HttpStatus.OK.value(),StatusType.NORMAL.toString());
 
            } catch (Exception e) {
           e.printStackTrace();

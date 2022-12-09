@@ -17,9 +17,9 @@ const Information = ({ navigation }) => {
     const [checkPasswordText, setCheckPasswordText] = useState('');
 
     const checkId = (username) => {
-        axios.get('http://10.0.2.2:8090/user/checkDuplicateId', {
+        axios.get('http://10.0.2.2:8090/user/checkDuplicateNickName', {
             params: {
-                username: username,
+                nickname: username,
             }
         }).then(response => {
             if(response.data.status == '200') {

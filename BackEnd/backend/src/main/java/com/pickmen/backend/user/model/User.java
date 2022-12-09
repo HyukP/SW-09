@@ -1,6 +1,7 @@
 package com.pickmen.backend.user.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -16,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pickmen.backend.Type.RoleType;
@@ -90,8 +92,19 @@ public class User {
 
    @Column(nullable= true)
    private String nickname;
+
+   @Column(nullable = true)
+   private long averageRating=3;
    
-   @Column(nullable= true)
-   private float averageRating;
+   @JsonManagedReference
+   @OneToMany( fetch = FetchType.LAZY,
+   mappedBy = "targetId", cascade = CascadeType.ALL)
+   private List<Review> reviews=new ArrayList<>();
+
+   public void addReview(Review review){
+    reviews.add(review);
+    review.setAuthorId(this);
+
+   }
 
 }

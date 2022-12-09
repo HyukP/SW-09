@@ -21,6 +21,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -116,13 +118,13 @@ public class ReplyController {
     
 
     @Transactional
-    @PostMapping("/reply/write/{post_id}")
-    public ResponseDto<Reply> postReply(@PathVariable long post_id, @AuthenticationPrincipal PrincipalDetail principalDetail, String content){
+    @GetMapping("/reply/write")
+    public @ResponseBody ResponseDto<Reply> postReply(@RequestParam("post_id") long post_id, @AuthenticationPrincipal PrincipalDetail principalDetail, String content){
 
         try {
             Post post=postRepository.getById(post_id);
             //Reply reply=new Reply().builder().content(content).nickname(principalDetail.getNickName()).user(principalDetail.getUser()).build();
-            Reply reply=new Reply().builder().content(content).post(post).build();
+            Reply reply=new Reply().builder().nickname(principalDetail.getNickName()).user(principalDetail.getUser()).content(content).post(post).build();
             post.addReply(reply);
             
         return new ResponseDto<Reply>(HttpStatus.OK.value(),null);
