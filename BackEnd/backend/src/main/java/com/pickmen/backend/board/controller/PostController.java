@@ -27,6 +27,7 @@ import com.pickmen.backend.board.repository.PostRepository;
 import com.pickmen.backend.board.service.PostService;
 import com.pickmen.backend.config.auth.PrincipalDetail;
 import com.pickmen.backend.dto.ResponseDto;
+import com.pickmen.backend.user.model.User;
 import com.pickmen.backend.user.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,16 +62,41 @@ public class PostController {
       return new ResponseDto<Post>(HttpStatus.INTERNAL_SERVER_ERROR.value(),null);
     }
   }
+  
+  @PostMapping("post/delivery/{posdId}")
+  public @ResponseBody ResponseDto<Post> postDelivery(@AuthenticationPrincipal PrincipalDetail principalDetail, @PathVariable long postId){
+    try{
+      Post getPost=postRepository.getById(postId);
+      getPost.setPostType(PostStatusType.DELIVERY);
+      getPost.setDeliveryId(principalDetail.getUser());
+      principalDetail.getUser().setStatus(StatusType.DELIVERY);
+      return new ResponseDto<>(HttpStatus.OK.value(),null);
+    }
+    catch(Exception e){
+      e.printStackTrace();
+      return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),null);
+  }
+}
 
+  @Transactional
   @PostMapping("post/delete")
   public @ResponseBody ResponseDto<Post> postDelete(@RequestParam(required = true, name = "postId" ) String post_id, @AuthenticationPrincipal PrincipalDetail principalDetail){
     try{
-    long postId=Long.parseLong(post_id);
+      long postId=Long.parseLong(post_id);
+      Post post=postRepository.findById(postId).get();
+      User author=userRepository.findById(post.getAuthorId().getId()).get();
+      author.setStatus(StatusType.NORMAL);
+      author.setPostId(null);
+      if(post.getAuthorId()!=null){
+      User delivery=userRepository.findById(post.getAuthorId().getId()).get();
+      delivery.setStatus(StatusType.NORMAL);
+      }
+
     //Post post=postService.getPost(post_id);
     //if(post.getAuthorId().getId()==principalDetail.getUserId()){
   
-    postService.delete(postId);
-    return new ResponseDto<>(HttpStatus.OK.value(),null);
+      postService.delete(postId);
+      return new ResponseDto<>(HttpStatus.OK.value(),null);
     //}
     //else{
     //  return "삭제 실패";
