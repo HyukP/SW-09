@@ -1,5 +1,6 @@
 package com.pickmen.backend.board.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -85,7 +86,7 @@ public class PostController {
      
   
   @Transactional
-  @PostMapping("/post/write")
+  @GetMapping("/post/write")
   public @ResponseBody ResponseDto<Post> postReply(@AuthenticationPrincipal PrincipalDetail principalDetail, Post post,
    @RequestParam("priFoodName") String prifoodname,@RequestParam("subFoodName") String subfoodname,
     @RequestParam("priFoodPrice") String prifoodprice, @RequestParam("subFoodPrice") String subfoodprice, 
@@ -103,16 +104,21 @@ public class PostController {
             foodRepository.save(priFood);
             foodRepository.save(subFood);
             newPost=new Post().builder().authorId(principalDetail.getUser())
-           .pickUpTime(post.getPickUpTime()).pickupLocation(post.getPickupLocation()).postType(PostStatusType.WAITING).build();
+           .pickUpTime(post.getPickUpTime()).pickupLocation(post.getPickupLocation()).postType(PostStatusType.WAIT).food(new ArrayList<Food>()).build();
             List<Food> foodList=newPost.getFood();
+            System.out.print(priFood.getFoodname());
+            System.out.println(priFood.getFoodlocation());
+            if(foodList==null){
+              System.out.println("null");
+            }
             foodList.add(priFood);
             foodList.add(subFood);
-
+            
             principalDetail.getUser().setStatus(StatusType.WRITE);
           }
 
         
-          
+          System.out.println(newPost);
           return new ResponseDto<>(HttpStatus.OK.value(),postRepository.save(newPost));
 
            } catch (Exception e) {

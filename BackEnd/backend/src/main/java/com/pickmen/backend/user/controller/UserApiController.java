@@ -1,5 +1,5 @@
 package com.pickmen.backend.user.controller;
-
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -98,20 +99,17 @@ public class UserApiController {
   }
 
 
-  @PostMapping("/user/signup")
+  @GetMapping("/user/signup")
   public @ResponseBody ResponseDto<User> signup(User user)
    {
-
      User newuser=new User();
-     newuser.setUsername(user.getUsername());
+     newuser.setUsername(user.getEmail());
      newuser.setPassword(user.getPassword());
      newuser.setNickname(user.getNickname());
      newuser.setAverageRating(3);
      newuser.setEmail(user.getEmail());
      newuser.setRole(RoleType.USER);
-     newuser.setStatus(StatusType.NORMAL);
-     
-     
+     newuser.setStatus(StatusType.NORMAL);  
     try {
       return new ResponseDto<>(HttpStatus.OK.value(), userService.join(newuser));
     } catch (Exception e) {

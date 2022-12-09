@@ -6,6 +6,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import 'react-navigation';
 import Home from './Home';
 import PostPage from '../Post/PostPage';
+import homeIcon from '../../../icons/home.png';
+import postIcon from '../../../icons/desktop-computer.png'
 
 // 전체 홈 화면 바텀 탭 Stack
 const Tab = createBottomTabNavigator();
@@ -23,9 +25,19 @@ const HomeScreen = ({ navigation , route}) => {
                 labeled = {true}
                 >
                 <Tab.Screen name='게시글' component={PostPage}options={{
+                    tabBarIcon: () => {
+                        return (
+                            <Image source={postIcon} style={{ width: 30, height: 30 }} />
+                        )
+                    },
                     unmountOnBlur: Platform.OS === 'ios' ? false : true,
                 }} />
                 <Tab.Screen name="홈" component={Home} options={{
+                    tabBarIcon: () => {
+                        return (
+                            <Image source={homeIcon} style={{ width: 30, height: 30 }} />
+                        )
+                    },
                     unmountOnBlur: Platform.OS === 'ios' ? false : true,
                 }} />
             </Tab.Navigator>

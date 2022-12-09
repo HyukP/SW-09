@@ -4,6 +4,7 @@ import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-community/async-storage';
+import { CommonActions } from '@react-navigation/native';
 import 'react-navigation'
 
 
@@ -14,7 +15,7 @@ const Map = ({ navigation , route}) => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     });
-    const [liveinWhere, setLiveinWhere] = useState('');
+    const [place, setPlace] = useState('');
     const mapRef = useRef(null);
     const [isSetLocation, setIsSetLocation] = useState(false);
 
@@ -29,9 +30,9 @@ const Map = ({ navigation , route}) => {
     }
     const getAddress = (latitude, longitude) => {
         fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' +
-            location.latitude + ',' + location.longitude + '&key=' + 'AIzaSyC735NfwQ7E0iXFV9140JKGrvV27p9LfFk&callback=initMap&language=ko'
+            location.latitude + ',' + location.longitude + '&key=' + 'AIzaSyCb_m2mZveyK0Ot2vXFeOqa_uM8ICvauyM&callback=initMap&language=ko'
         ).then((response) => response.json()).then((responseJson) => {
-            console.log(responseJson);
+            setPlace(responseJson.results[0].formatted_address);
         })
     }
     const updateLocation = (Location) => {
@@ -44,7 +45,7 @@ const Map = ({ navigation , route}) => {
     }
     const saveLocation = async () => {
         try {
-            await AsyncStorage.setItem('location', String(liveinWhere));
+            await AsyncStorage.setItem('location', String(place));
         } catch (e) {
             console.log(e);
         }
@@ -60,7 +61,7 @@ const Map = ({ navigation , route}) => {
             error => console.log(error),
             { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
         );
-        if(liveinWhere === ''){
+        if(place === ''){
             getAddress(latitude, longitude);
         }
     },[]);
@@ -90,7 +91,14 @@ const Map = ({ navigation , route}) => {
                     <TouchableOpacity style={styles.Button} onPress={()=>{
                         saveLocation();
                         setIsSetLocation(true);
-                        navigation.navigate('PostWrite', {item_isSetLocation : isSetLocation})}}>
+                        navigation.dispatch(CommonActions.reset({
+                            index : 0,
+                            routes : [{name : 'PostWrite', params : {
+                                latitude : location.latitude,
+                                longitude : location.longitude,
+                                place : place
+                            }}],
+                        }))}}>
                         <Text style={styles.Text}>확인</Text>
                     </TouchableOpacity>
                 </View>
@@ -126,7 +134,7 @@ const Map = ({ navigation , route}) => {
                         updateLocation(details.geometry.location);
                     }}
                     query={{
-                        key: 'AIzaSyD_b4PvKJG8CvebhZOuIfsETyXGVxbcN6A',
+                        key: 'AIzaSyCb_m2mZveyK0Ot2vXFeOqa_uM8ICvauyM',
                         language: 'ko',
                     }}>
                 </GooglePlacesAutocomplete>

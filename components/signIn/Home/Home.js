@@ -137,8 +137,8 @@ const styles = StyleSheet.create({
     },
     PageStyle: {
         backgroundColor: 'white',
-        width: 380,
-        height: 690,
+        width: '96%',
+        height: '98%',
         borderColor: 'white',
         borderWidth: 1,
         borderRadius: 10,

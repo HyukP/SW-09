@@ -16,6 +16,19 @@ const Information = ({ navigation }) => {
     const [checkIdText, setCheckIdText] = useState('');
     const [checkPasswordText, setCheckPasswordText] = useState('');
 
+    const checkId = (username) => {
+        axios.get('http://10.0.2.2:8090/user/checkDuplicateId', {
+            params: {
+                username: username,
+            }
+        }).then(response => {
+            if(response.data.status == '200') {
+                setCheckIdText('사용 가능한 아이디입니다.')
+            } else {
+                setCheckIdText('중복된 아이디입니다.')
+            }
+        })
+    }
     const checkPassword = (password, correctPassword) => {
         if(password == correctPassword) {
             setCheckPasswordText('비밀번호가 일치합니다.')
@@ -49,35 +62,29 @@ const Information = ({ navigation }) => {
         var data = await AsyncStorage.getItem('password');
         setSendPassword(data)
     }
-    const register = async (username, email, password) => {
-        var nickname = await AsyncStorage.getItem('nickName');
-        var data2 = await AsyncStorage.getItem('image');
-        var lecture1 = await AsyncStorage.getItem('lecture1');
-        var lecture2 = await AsyncStorage.getItem('lecture2');
-        var majorValue = await AsyncStorage.getItem('MajorValue');
-        var school = await AsyncStorage.getItem('school');
-        var livingWhere = await AsyncStorage.getItem('liveinWhere');
-        const ids = [Number(lecture1), Number(lecture2)];
-        
-        /*await axios.post('http://10.0.2.2:8090/user/mentee/signup', InputImage, {
-            headers: {
-                "Content-Type": "multipart/form-data",
+    const register = (username, email, password) => {
+        console.log(password);
+        var user = {
+            username: username,
+            password: password,
+            nickname: userName,
+            email: email
+        }
+        axios.get('http://10.0.2.2:8090/user/signup',{
+            method : 'POST',
+            params : {
+                email : email,
+                username : email,
+                password : password,
+                nickname : userName,
             },
-            params: {
-                username: username,
-                password: password,
-                nickname: nickname,
-                email: email,
-                lectureList: ids.join(','),
-                major : Number(majorValue),
-                school : Number(school),
-                livingWhere : livingWhere,
+            headers: {
+                "Content-Type": "application/json",
             },
         }
         ).then((response) => {
-            console.log(response.data)
-            AsyncStorage.removeItem('image');
-        })*/
+            console.log(response.data);
+        })
     }
     returnEmail();
     return (
@@ -115,8 +122,9 @@ const Information = ({ navigation }) => {
                     <View>{renderCheckPassword()}</View>
                     <TouchableOpacity style={styles.CorrectButton}
                         onPress={() => {
-                            checkPassword(Password, correctPassword)
+                            checkPassword(Password, correctPassword);
                             savePassword(Password);
+                            console.log(Password);
                         }}>
                         <Text style={styles.ButtonText}>비밀번호 확인</Text>
                     </TouchableOpacity>
@@ -125,8 +133,9 @@ const Information = ({ navigation }) => {
                     <TouchableOpacity style={styles.Button}
                         onPress={() => {
                             if (checkPasswordText == '비밀번호가 일치합니다.' && checkIdText == '사용 가능한 아이디입니다.') {
-                                register(userName, sendEmail, sendPassword);
-                                navigation.navigate('EndRegister');
+                                console.log(Password);
+                                register(sendEmail, sendEmail, Password);
+                                navigation.navigate("EndRegister");
                             }
                         }}>
                         <Text style={styles.ButtonText}>가입하기</Text>

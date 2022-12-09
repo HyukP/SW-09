@@ -20,12 +20,6 @@ const PostList = ({ navigation }) => {
             <Text style={styles.writeText} onPress={()=> {navigation.navigate("PostWrite")}}>글쓰기</Text>
           </TouchableOpacity>
         </View>
-        <View>
-            <Searchbar
-                placeholder="Search"
-                style={{ marginLeft: 17, width: 200, height: 40 }}
-            />
-        </View>
         <View style={{ flexgrow: 1 }}>
           <FlatList
             contentContainerStyle={{ flexGrow: 1 }}>

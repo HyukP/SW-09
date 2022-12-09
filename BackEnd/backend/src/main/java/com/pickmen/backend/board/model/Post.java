@@ -2,6 +2,7 @@ package com.pickmen.backend.board.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -64,7 +65,7 @@ public class Post {
   @Column(nullable = false, length = 200)
   private String pickupLocation;
 
-  private LocalDateTime pickUpTime;
+  private String pickUpTime;
 
 
   @JsonManagedReference

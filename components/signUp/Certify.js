@@ -14,6 +14,40 @@ const Certify = ({ navigation }) => {
     const [CorrectNum, setCorrectNum] = useState('');
     const [data, setData] = useState([]);
 
+    const SendMail = async (text) => {
+        const domain = text.split('@')[1];
+        var isExist = "";
+        api.get('http://10.0.2.2:8090/user/checkDuplicateId', {
+            params: {
+                username: UserEmail,
+            }
+        }).then(response => {
+            if(response.data.status == '200') {
+                isExist = "none";
+            } else {
+                alert("해당 아이디를 가진 사용자가 이미 존재합니다.");
+            }
+        })
+        if(domain=="ajou.ac.kr" && isExist == "none"){
+            await api.post('http://10.0.2.2:8090/mail/certify', null, {
+                params: {
+                    email: text
+                }
+            })
+                .then((response) => {
+                    setData(response.data);
+                }
+                ).catch((error) => {
+                    console.log(error)
+                }
+                );
+        } else {
+            alert("Ajou 계정이 아닙니다!");
+        }
+    }
+    const saveEmail = async (email) => {
+        await AsyncStorage.setItem('email', String(email));
+    }
     return (
         <View style={{ flex: 1, backgroundColor: '#89D69D' }}>
             <View style={styles.PageStyle}>
@@ -31,7 +65,11 @@ const Certify = ({ navigation }) => {
                     onChangeText={CorrectNum => setCorrectNum(CorrectNum)} />
                 <TouchableOpacity style={styles.CorrectButton}
                     onPress={() => {
+                        if ((CorrectNum == data && CorrectNum != '')) {
                             navigation.navigate('Information');
+                        } else {
+                            setMailText2('인증번호가 틀렸습니다.')
+                        }
                     }}>
                     <Text style={styles.Text}>확인</Text>
                 </TouchableOpacity>

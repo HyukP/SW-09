@@ -9,6 +9,23 @@ import axios from 'axios';
 const Login = ({ navigation }) =>{
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const LoginAccess = async (email, password) => {
+        axios.post('http://10.0.2.2:8090/user/login', null, {
+            params: {
+                username: email,
+                password: password,
+            }
+        }).then(response => {
+            if (response.data.status == 200) {
+                navigation.navigate('HomeScreen', { item_nickname: response.data.data.nickname });
+            } else {
+                alert('아이디 또는 비밀번호가 틀렸습니다.');
+                navigation.navigate('Login');
+            }
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
     return (
         <View style={{ flex: 1, backgroundColor: '#89D69D' }}>
             <View style={styles.PageStyle}>
@@ -23,7 +40,7 @@ const Login = ({ navigation }) =>{
                 </View>
                 <TouchableOpacity style={styles.startButton}
                     onPress={() => {
-                        navigation.navigate('HomeScreen');
+                        LoginAccess(email, password);
                     }}>
                     <Text style={styles.ButtonText}>Login</Text>
                 </TouchableOpacity>
