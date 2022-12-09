@@ -17,6 +17,7 @@ const Login = ({ navigation }) =>{
             }
         }).then(response => {
             if (response.data.status == 200) {
+                AsyncStorage.setItem('username',response.data.data.nickname);
                 navigation.navigate('HomeScreen', { item_nickname: response.data.data.nickname });
             } else {
                 alert('아이디 또는 비밀번호가 틀렸습니다.');

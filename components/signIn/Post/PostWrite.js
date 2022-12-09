@@ -43,7 +43,18 @@ const PostWrite = ({navigation, route}) => {
                 subFoodLocation : latitude + ',' + longitude,
             }
         }).then(response => {
-            console.log(response.data);
+            if(response.data.data=="DELIVERY"){
+                alert("해당 사용자는 배달 진행 중입니다.");
+            } else if (response.data.data=="WRITE") {
+                alert("해당 사용자는 배달 요청 중입니다.");
+            } else {
+                alert("작성에 성공했습니다!");
+                navigation.dispatch(CommonActions.reset({
+                    index : 0,
+                    routes : [{name : 'Post'
+                    }],
+                }))
+            }
         })
     }
     useEffect(() => {
@@ -69,8 +80,8 @@ const PostWrite = ({navigation, route}) => {
                     <Text style={styles.ExitText}>X</Text>
                 </TouchableOpacity>
                 <Text style={styles.PostText}>글 쓰기</Text>
-                <TouchableOpacity style={styles.Button} onPress={() => {}}>
-                    <Text style={styles.ButtonText} onPress={()=>writePost()}>작성</Text>
+                <TouchableOpacity style={styles.Button} onPress={()=>writePost()}>
+                    <Text style={styles.ButtonText}>작성</Text>
                 </TouchableOpacity>
             </View>
             <View style={{ marginTop: 40 }}>
@@ -166,7 +177,6 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
         marginRight: 'auto',
         marginBottom: 20
-
     },
     mapButton : {
         width: 80,

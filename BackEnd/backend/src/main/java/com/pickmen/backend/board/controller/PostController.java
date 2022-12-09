@@ -60,7 +60,7 @@ public class PostController {
 
 
   @GetMapping("post/get/{post_id}")
-  public ResponseDto<Post> postList(@PathVariable Long post_id){
+  public @ResponseBody ResponseDto<Post> postList(@PathVariable Long post_id){
     try {
       return new ResponseDto<Post>(HttpStatus.OK.value(),postRepository.findById(post_id).get());
     } catch (Exception e) {
@@ -68,14 +68,20 @@ public class PostController {
       return new ResponseDto<Post>(HttpStatus.INTERNAL_SERVER_ERROR.value(),null);
     }
   }
-  
-  @PostMapping("post/delivery/{posdId}")
-  public @ResponseBody ResponseDto<Post> postDelivery(@AuthenticationPrincipal PrincipalDetail principalDetail, @PathVariable long postId){
+  @Transactional
+  @GetMapping("post/delivery")
+  public @ResponseBody ResponseDto<String> postDelivery(@AuthenticationPrincipal PrincipalDetail principalDetail, @RequestParam("postId") String postId){
     try{
-      Post getPost=postRepository.getById(postId);
+      Post getPost=postRepository.getById(Long.parseLong(postId));
+      System.out.println(postId);
       getPost.setPostType(PostStatusType.DELIVERY);
+      if(principalDetail.getUser().getStatus()==StatusType.DELIVERY || principalDetail.getUser().getStatus() == StatusType.WRITE){
+        return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),principalDetail.getUser().getStatus().toString());
+      }
       getPost.setDeliveryId(principalDetail.getUser());
       principalDetail.getUser().setStatus(StatusType.DELIVERY);
+      postRepository.save(getPost);
+      userRepository.save(principalDetail.getUser());
       return new ResponseDto<>(HttpStatus.OK.value(),null);
     }
     catch(Exception e){
@@ -93,11 +99,13 @@ public class PostController {
       User author=userRepository.findById(post.getAuthorId().getId()).get();
       author.setStatus(StatusType.NORMAL);
       post.setPostType(PostStatusType.TERMINATE);
-      
+      userRepository.save(author);
+      postRepository.save(post);
     
       if(post.getAuthorId()!=null){
       User delivery=userRepository.findById(post.getAuthorId().getId()).get();
       delivery.setStatus(StatusType.NORMAL);
+      userRepository.save(delivery);
       }
 
     //Post post=postService.getPost(post_id);
@@ -120,7 +128,7 @@ public class PostController {
   
   @Transactional
   @GetMapping("/post/write")
-  public @ResponseBody ResponseDto<Post> postReply(@AuthenticationPrincipal PrincipalDetail principalDetail, Post post,
+  public @ResponseBody ResponseDto<String> postReply(@AuthenticationPrincipal PrincipalDetail principalDetail, Post post,
    @RequestParam("priFoodName") String prifoodname,@RequestParam("subFoodName") String subfoodname,
     @RequestParam("priFoodPrice") String prifoodprice, @RequestParam("subFoodPrice") String subfoodprice, 
     @RequestParam("priFooodLocation") String prifoodlocation, @RequestParam("subFoodLocation") String subfoodlocation){
@@ -142,14 +150,18 @@ public class PostController {
             System.out.println(priFood.getFoodlocation());
             newPost.addFood(priFood);
             newPost.addFood(subFood);
-
-            principalDetail.getUser().setStatus(StatusType.WRITE);
+            
+            User author=principalDetail.getUser();
+            newPost.setAuthorNickName(author.getNickname());
+            author.setStatus(StatusType.WRITE);
             userRepository.save(principalDetail.getUser());
+          } else {
+              return new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),principalDetail.getUser().getStatus().toString());
           }
 
         
-          System.out.println(newPost);
-          return new ResponseDto<>(HttpStatus.OK.value(),postRepository.save(newPost));
+          postRepository.save(newPost);
+          return new ResponseDto<>(HttpStatus.OK.value(),principalDetail.getUser().getStatus().toString());
 
            } catch (Exception e) {
           e.printStackTrace();

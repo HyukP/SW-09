@@ -6,6 +6,7 @@ import Post from './PostList';
 import EditPost from './PostEdit';
 import PostWrite from './PostWrite';
 import Map from './Maps';
+import PostDetail from './PostEdit';
 // Post 전체 페이지 Stack
 const stack = createStackNavigator();
 // Post 전체 페이지
@@ -17,6 +18,7 @@ const PostPage = () => {
       }} initialRouteName="Post">
         <stack.Screen name="Post" component={Post} />
         <stack.Screen name="PostWrite" component={PostWrite}/>
+        <stack.Screen name="PostDetail" component={PostDetail}/>
         <stack.Screen name='Map' component={Map}/>
       </stack.Navigator>
     </NavigationContainer>

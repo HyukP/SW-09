@@ -87,6 +87,9 @@ public class Post {
   @JoinColumn(name = "authorId")
   private User authorId; // 작성이
 
+
+  private String authorNickName;
+
  
 
    // Board N : 1 User -> 한명의 유저는 여러개의 게시글을 사용할 수 있으므로..
