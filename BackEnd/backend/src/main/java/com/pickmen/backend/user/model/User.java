@@ -1,6 +1,7 @@
 package com.pickmen.backend.user.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,8 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -63,10 +63,22 @@ public class User {
   private RoleType role; // ENUM을 쓰는것이 좋다.
 
   @JsonManagedReference
-  @OneToOne(
+  @OneToMany(
       fetch = FetchType.EAGER,
       mappedBy = "authorId",cascade = {CascadeType.ALL}) 
-  private Post postId;
+  private List<Post> postId;
+
+  public boolean addPost(Post post){
+    try{
+    postId.add(post);
+    post.setAuthorId(this);
+    }
+    catch(Exception e){
+      e.printStackTrace();
+      return false;
+    }
+    return true;
+  }
 
   @Enumerated(EnumType.STRING)
   private StatusType status;

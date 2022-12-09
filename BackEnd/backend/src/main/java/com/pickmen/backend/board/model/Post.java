@@ -82,7 +82,7 @@ public class Post {
 
   // Board N : 1 User -> 한명의 유저는 여러개의 게시글을 사용할 수 있으므로..
   @JsonBackReference
-  @OneToOne(fetch = FetchType.EAGER) // 1개밖에 없으므로, 바로 가지고 옴
+  @ManyToOne(fetch = FetchType.EAGER) // 1개밖에 없으므로, 바로 가지고 옴
   @JoinColumn(name = "authorId")
   private User authorId; // 작성이
 

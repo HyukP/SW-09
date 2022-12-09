@@ -86,7 +86,9 @@ public class PostController {
       Post post=postRepository.findById(postId).get();
       User author=userRepository.findById(post.getAuthorId().getId()).get();
       author.setStatus(StatusType.NORMAL);
-      author.setPostId(null);
+      post.setPostType(PostStatusType.TERMINATE);
+      
+    
       if(post.getAuthorId()!=null){
       User delivery=userRepository.findById(post.getAuthorId().getId()).get();
       delivery.setStatus(StatusType.NORMAL);
@@ -95,7 +97,7 @@ public class PostController {
     //Post post=postService.getPost(post_id);
     //if(post.getAuthorId().getId()==principalDetail.getUserId()){
   
-      postService.delete(postId);
+      //postService.delete(postId);
       return new ResponseDto<>(HttpStatus.OK.value(),null);
     //}
     //else{
